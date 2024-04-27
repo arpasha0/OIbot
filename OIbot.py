@@ -6,7 +6,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 import requests
 
 # Токен вашего бота Telegram
-TOKEN = 7129675956:AAHl8R0-5gHsW2DxEDtDznTQuqcMkUusrsE
+TOKEN = "7129675956:AAHl8R0-5gHsW2DxEDtDznTQuqcMkUusrsE"
 
 # Настройка журналирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -52,6 +52,10 @@ def find_interest_growth(symbol: str, minutes: int, growth_threshold: float) -> 
     else:
         return False
 
+# Обработчик команды /start
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text("Привет! Я бот для отслеживания роста открытого интереса криптовалютных фьючерсов на Binance Futures. Используйте команду /scan_interest для сканирования роста.")
+
 # Обработчик команды /scan_interest
 def scan_interest(update: Update, context: CallbackContext) -> None:
     growth_threshold = context.args[0] if context.args and context.args[0].isdigit() else 10
@@ -72,6 +76,7 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
+    dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("scan_interest", scan_interest))
 
     # Запуск бота
