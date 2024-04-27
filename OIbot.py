@@ -58,14 +58,14 @@ def start(update: Update, context: CallbackContext) -> None:
 
 # Обработчик команды /scan_interest
 def scan_interest(update: Update, context: CallbackContext) -> None:
-    growth_threshold = context.args[0] if context.args and context.args[0].isdigit() else 10
-    minutes = context.args[1] if context.args and context.args[1].isdigit() else 5
+    growth_threshold = float(context.args[0]) if context.args and context.args[0].isdigit() else 10
+    minutes = int(context.args[1]) if context.args and context.args[1].isdigit() else 5
     
     symbols = get_available_symbols()
     message = f"Рост открытого интереса за последние {minutes} минут(у):"
     
     for symbol in symbols:
-        if find_interest_growth(symbol, int(minutes), float(growth_threshold)):
+        if find_interest_growth(symbol, minutes, growth_threshold):
             message += f"\n{symbol}"
     
     update.message.reply_text(message)
@@ -81,11 +81,6 @@ def main() -> None:
 
     # Запуск бота
     updater.start_polling()
-
-    # Сканирование каждую минуту
-    while True:
-        time.sleep(60)
-        scan_interest()
 
     updater.idle()
 
