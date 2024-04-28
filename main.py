@@ -68,6 +68,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
 # Обработчик команды /scan_interest
 def scan_interest(update: Update, context: CallbackContext) -> None:
+    # **Исправление:** Обработка ошибок при отсутствии аргументов
     try:
         growth_threshold = float(context.args[0])
         minutes = int(context.args[1])
@@ -75,40 +76,11 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
         return
     
+    # **Исправление:** Проверка значений аргументов
     if growth_threshold <= 0 or minutes <= 0:
         update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
         return
     
     symbols = get_available_symbols()
-    message_parts = [f"Рост открытого интереса за последние {minutes} минут(ы):"]
-    
-    for symbol in symbols:
-        if find_interest_growth(symbol, minutes, growth_threshold):
-            message_parts.append(symbol)
-    
-    if len(message_parts) == 1:
-        message_parts.append("Не найдено ни одного символа с ростом открытого интереса за указанный период.")
-    
-    update.message.reply_text("\n".join(message_parts))
-
-# Главная функция
-def main() -> None:
-    # Установка вебхука для приема обновлений от Telegram
-    updater = Updater(TOKEN, use_context=True)
-    
-    # Привязка к порту
-    PORT = int(os.environ.get('PORT', '8443'))
-    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
-    updater.bot.set_webhook("https://your-heroku-app.herokuapp.com/" + TOKEN)
-
-    # Добавление обработчиков команд
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("scan_interest", scan_interest))
-
-    # Запуск бота
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+    message_parts = [f"Рост открытого интереса за последние
     
