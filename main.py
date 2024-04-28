@@ -1,5 +1,4 @@
 import logging
-import time
 from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
@@ -72,7 +71,7 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
 
 # Главная функция
 def main() -> None:
-    updater = Updater(TOKEN)
+    updater = Updater(TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
@@ -86,4 +85,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-    
