@@ -14,18 +14,28 @@ logger = logging.getLogger(__name__)
 # Получение списка доступных криптовалютных фьючерсов на Binance Futures
 def get_available_symbols() -> list:
     url = "https://fapi.binance.com/fapi/v1/exchangeInfo"
-    response = requests.get(url)
-    data = response.json()
-    symbols = [symbol["symbol"] for symbol in data["symbols"] if symbol["contractType"] == "PERPETUAL"]
-    return symbols
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        symbols = [symbol["symbol"] for symbol in data["symbols"] if symbol["contractType"] == "PERPETUAL"]
+        return symbols
+    except Exception as e:
+        logger.error(f"Ошибка при получении списка доступных символов: {e}")
+        return []
 
 # Получение данных об открытом интересе для указанного символа на Binance Futures
 def get_open_interest(symbol: str) -> dict:
     url = "https://fapi.binance.com/futures/data/openInterestHist"
     params = {"symbol": symbol}
-    response = requests.get(url, params=params)
-    data = response.json()
-    return data
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except Exception as e:
+        logger.error(f"Ошибка при получении данных об открытом интересе для {symbol}: {e}")
+        return {}
 
 # Поиск роста открытого интереса за указанное время
 def find_interest_growth(symbol: str, minutes: int, growth_threshold: float) -> bool:
@@ -33,7 +43,7 @@ def find_interest_growth(symbol: str, minutes: int, growth_threshold: float) -> 
     start_time = current_time - timedelta(minutes=minutes)
     
     open_interest_data = get_open_interest(symbol)
-    if "code" in open_interest_data:
+    if not open_interest_data or "code" in open_interest_data:
         logger.error(f"Ошибка при получении данных об открытом интересе для {symbol}.")
         return False
     
@@ -60,7 +70,7 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
     try:
         growth_threshold = float(context.args[0])
         minutes = int(context.args[1])
-    except ValueError:
+    except (ValueError, IndexError):
         update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
         return
     
@@ -69,17 +79,18 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
         return
     
     symbols = get_available_symbols()
-    message = f"Рост открытого интереса за последние {minutes} минут(ы):"
+    message_parts = [f"Рост открытого интереса за последние {minutes} минут(ы):"]
     
     for symbol in symbols:
         if find_interest_growth(symbol, minutes, growth_threshold):
-            message += f"\n{symbol}"
+            message_parts.append(symbol)
     
-    if message == f"Рост открытого интереса за последние {minutes} минут(ы):":
-        message += "\nНе найдено ни одного символа с ростом открытого интереса за указанный период."
+    if len(message_parts) == 1:
+        message_parts.append("Не найдено ни одного символа с ростом открытого интереса за указанный период.")
     
-    update.message.reply_text(message)
+    update.message.reply_text("\n".join(message_parts))
 
 # Главная функция
 def main() -> None:
-    updater = Updater(TOKEN, use_context=True)  # Исправлено: use
+    updater = Updater(TOKEN, use_context=True)
+    
