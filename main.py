@@ -84,28 +84,28 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
     symbols = get_available_symbols()
     message_parts = [f"Рост открытого интереса за последние {minutes} минут(ы):"]
 
-for symbol in symbols:
-    if find_interest_growth(symbol, minutes, growth_threshold):
-        message_parts.append(symbol)
+    for symbol in symbols:
+        if find_interest_growth(symbol, minutes, growth_threshold):
+            message_parts.append(symbol)
 
-if len(message_parts) == 1:
-    message_parts.append("Не найдено ни одного символа с ростом открытого интереса за указанный период.")
+    if len(message_parts) == 1:
+        message_parts.append("Не найдено ни одного символа с ростом открытого интереса за указанный период.")
 
-update.message.reply_text("\n".join(message_parts))
+    update.message.reply_text("\n".join(message_parts))
 
 # Главная функция
-def main() -> None:
+    def main() -> None:
     # Установка вебхука для приема обновлений от Telegram
-    updater = Updater(TOKEN)
-    dispatcher = updater.dispatcher
+        updater = Updater(TOKEN)
+        dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("scan_interest", scan_interest))
+        dispatcher.add_handler(CommandHandler("start", start))
+        dispatcher.add_handler(CommandHandler("scan_interest", scan_interest))
 
     # Запуск бота
-    updater.start_polling()
-    updater.idle()
+        updater.start_polling()
+        updater.idle()
 
-if __name__ == '__main__':
-    main()
+    if __name__ == '__main__':
+        main()
