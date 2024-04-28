@@ -82,7 +82,7 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
         return
     
     symbols = get_available_symbols()
-message_parts = [f"Рост открытого интереса за последние {minutes} минут(ы):"]
+    message_parts = [f"Рост открытого интереса за последние {minutes} минут(ы):"]
 
 for symbol in symbols:
     if find_interest_growth(symbol, minutes, growth_threshold):
