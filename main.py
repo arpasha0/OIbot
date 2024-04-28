@@ -71,7 +71,7 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
 
 # Главная функция
 def main() -> None:
-    updater = Updater(TOKEN)
+    updater = Updater(TOKEN, use_context=True)  # Добавлен аргумент use_context=True
     dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
