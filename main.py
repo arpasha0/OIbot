@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import requests
+import os
 
 # Токен вашего бота Telegram
 TOKEN = "7129675956:AAHl8R0-5gHsW2DxEDtDznTQuqcMkUusrsE"
@@ -92,5 +93,22 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
 
 # Главная функция
 def main() -> None:
+    # Установка вебхука для приема обновлений от Telegram
     updater = Updater(TOKEN, use_context=True)
+    
+    # Привязка к порту
+    PORT = int(os.environ.get('PORT', '8443'))
+    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+    updater.bot.set_webhook("https://your-heroku-app.herokuapp.com/" + TOKEN)
+
+    # Добавление обработчиков команд
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("scan_interest", scan_interest))
+
+    # Запуск бота
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
     
