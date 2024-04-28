@@ -71,7 +71,7 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
 
 # Главная функция
 def main() -> None:
-    updater = Updater(TOKEN, use_context=True)
+    updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
@@ -85,3 +85,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    
