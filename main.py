@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import requests
-from queue import Queue
 
 # Токен вашего бота Telegram
 TOKEN = "7129675956:AAHl8R0-5gHsW2DxEDtDznTQuqcMkUusrsE"
@@ -98,11 +97,8 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
 
 # Главная функция
 def main() -> None:
-    # Создание очереди обновлений
-    update_queue = Queue()
-    
     # Установка вебхука для приема обновлений от Telegram
-    updater = Updater(TOKEN, use_context=True, update_queue=update_queue)
+    updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
@@ -115,4 +111,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-        
+                                 
