@@ -57,32 +57,29 @@ def start(update: Update, context: CallbackContext) -> None:
 
 # Обработчик команды /scan_interest
 def scan_interest(update: Update, context: CallbackContext) -> None:
-    growth_threshold = float(context.args[0]) if context.args and context.args[0].isdigit() else 10
-    minutes = int(context.args[1]) if context.args and context.args[1].isdigit() else 5
+    try:
+        growth_threshold = float(context.args[0])
+        minutes = int(context.args[1])
+    except ValueError:
+        update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
+        return
+    
+    if growth_threshold <= 0 or minutes <= 0:
+        update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
+        return
     
     symbols = get_available_symbols()
-    message = f"Рост открытого интереса за последние {minutes} минут(у):"
+    message = f"Рост открытого интереса за последние {minutes} минут(ы):"
     
     for symbol in symbols:
         if find_interest_growth(symbol, minutes, growth_threshold):
             message += f"\n{symbol}"
     
+    if message == f"Рост открытого интереса за последние {minutes} минут(ы):":
+        message += "\nНе найдено ни одного символа с ростом открытого интереса за указанный период."
+    
     update.message.reply_text(message)
 
 # Главная функция
 def main() -> None:
-    updater = Updater(TOKEN)
-    dispatcher = updater.dispatcher
-
-    # Добавление обработчиков команд
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("scan_interest", scan_interest))
-
-    # Запуск бота
-    updater.start_polling()
-
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
-    
+    updater = Updater(TOKEN, use_context=True)  # Исправлено: use
