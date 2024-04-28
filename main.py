@@ -1,9 +1,9 @@
 import logging
+import telegram 
 from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import requests
-import os
 
 # Токен вашего бота Telegram
 TOKEN = "7129675956:AAHl8R0-5gHsW2DxEDtDznTQuqcMkUusrsE"
@@ -68,7 +68,11 @@ def start(update: Update, context: CallbackContext) -> None:
 
 # Обработчик команды /scan_interest
 def scan_interest(update: Update, context: CallbackContext) -> None:
-    # **Исправление:** Обработка ошибок при отсутствии аргументов
+    # Проверка наличия аргументов
+    if not context.args:
+        update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
+        return
+    
     try:
         growth_threshold = float(context.args[0])
         minutes = int(context.args[1])
@@ -76,7 +80,6 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
         return
     
-    # **Исправление:** Проверка значений аргументов
     if growth_threshold <= 0 or minutes <= 0:
         update.message.reply_text("Неверные аргументы. Используйте /scan_interest <рост_открытого_интереса_в_процентах> <минут>")
         return
@@ -94,18 +97,19 @@ def scan_interest(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("\n".join(message_parts))
 
 # Главная функция
-    def main() -> None:
+def main() -> None:
     # Установка вебхука для приема обновлений от Telegram
-        updater = Updater(TOKEN)
-        dispatcher = updater.dispatcher
+    updater = Updater(TOKEN)
+    dispatcher = updater.dispatcher
 
     # Добавление обработчиков команд
-        dispatcher.add_handler(CommandHandler("start", start))
-        dispatcher.add_handler(CommandHandler("scan_interest", scan_interest))
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("scan_interest", scan_interest))
 
     # Запуск бота
-        updater.start_polling()
-        updater.idle()
+    updater.start_polling()
+    updater.idle()
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
+    
